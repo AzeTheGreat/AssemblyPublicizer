@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Mono.Cecil;
 using Mono.Options;
@@ -147,6 +148,9 @@ namespace CabbageCrow.AssemblyPublicizer
 			count = 0;
 			foreach (var type in allTypes)
 			{
+                if (type.CustomAttributes.Any(a => a.AttributeType.Name == nameof(CompilerGeneratedAttribute)))
+                    continue;
+
 				if (!type?.IsPublic ?? false && !type.IsNestedPublic)
 				{
 					count++;
@@ -160,8 +164,11 @@ namespace CabbageCrow.AssemblyPublicizer
 
 			count = 0;
 			foreach (var method in allMethods)
-			{
-				if (!method?.IsPublic ?? false)
+            {
+                if (method.CustomAttributes.Any(a => a.AttributeType.Name == nameof(CompilerGeneratedAttribute)))
+                    continue;
+
+                if (!method?.IsPublic ?? false)
 				{
 					count++;
 					method.IsPublic = true;
@@ -172,7 +179,10 @@ namespace CabbageCrow.AssemblyPublicizer
 			count = 0;
 			foreach (var field in allFields)
 			{
-				if (!field?.IsPublic ?? false)
+                if (field.CustomAttributes.Any(a => a.AttributeType.Name == nameof(CompilerGeneratedAttribute)))
+                    continue;
+
+                if (!field?.IsPublic ?? false)
 				{
 					count++;
 					field.IsPublic = true;
